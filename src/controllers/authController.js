@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const jwt = require('jsonwebtoken');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } = require('firebase/auth');
 const nodemailer = require('nodemailer');
+const checkAuth = require('../middlewares/checkAuth');
 
 const db = admin.firestore();
 const auth = getAuth(firebaseApp);
@@ -100,3 +101,17 @@ exports.userSignin = async (req, res, next) => {
         });
     }
 };
+
+exports.userData = async (req, res, next) => {
+    const userId = req.user.uid;
+    try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const userData = userDoc.data();
+        res.json({ user: userData, userId: userId });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user data', error });
+    }
+}

@@ -20,4 +20,9 @@ app.use((req, res, next) => {
 
 app.use('/api/user', authRoute);
 
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err);
+    res.status(500).json({ message: 'Something went wrong!' });
+});
+
 module.exports = app;
